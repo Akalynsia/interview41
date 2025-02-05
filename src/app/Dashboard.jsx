@@ -6,11 +6,13 @@ export default function Dashboard() {
   const [loggedInUser, setLoggedInUser] = useState(null);
 
   useEffect(() => {
-    const user = JSON.parse(localStorage.getItem("loggedInUser")); // Parse JSON
-    if (user) {
-      setLoggedInUser(user.username); // Store only the username
-    } else {
-      navigate("/");
+    if (typeof window !== "undefined") {
+      const storedUser = localStorage.getItem("loggedInUser");
+      if (storedUser) {
+        setLoggedInUser(JSON.parse(storedUser).username);
+      } else {
+        navigate("/");
+      }
     }
   }, [navigate]);
 
