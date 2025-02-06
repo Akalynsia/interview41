@@ -12,17 +12,17 @@ export default function Dashboard() {
   const [error, setError] = useState(null);
 
   const columns = [
-    "Record Date",
-    "Approver",
-    "Reporter",
-    "Phone Number",
-    "Issue",
-    "Location",
+    "Kayıt Tarihi",
+    "Kayıt Yapan",
+    "Bildiren",
+    "Bildiren Tel",
+    "Arıza",
+    "Yeri",
     "Shop",
-    "Assigned",
-    "Urgency",
-    "Report",
-    "Completion Date",
+    "Atanan",
+    "Aciliyet",
+    "İş Bitimi Açıklama",
+    "Tamamlama Tarihi",
   ];
 
   useEffect(() => {
@@ -49,7 +49,7 @@ export default function Dashboard() {
   const validateForm = () => {
     for (let column of columns) {
       if (!newRecord[column] || newRecord[column].trim() === "") {
-        setError(`Please fill in the "${column}" field.`);
+        setError(` "${column}" kısmı boş kalamaz.`);
         return false;
       }
     }
@@ -90,35 +90,32 @@ export default function Dashboard() {
     <div className="p-6 bg-gray-100 min-h-screen">
       {/* Header Section */}
       <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold">FAULTY RECORD SYSTEM</h1>
+        <h1 className="text-2xl font-bold">ARIZA KAYIT SİSTEMİ</h1>
         <div className="flex items-center space-x-4">
           <span className="font-semibold">{loggedInUser}</span>
           <button
             onClick={logOut}
             className="bg-red-500 text-white px-4 py-2 rounded"
           >
-            Log Off
+            Çıkış Yap
           </button>
         </div>
       </div>
 
-      {/* Error Message */}
       {error && <p className="text-red-500 mb-4">{error}</p>}
 
-      {/* Records Table */}
       <table className="w-full bg-white border rounded mt-4">
         <thead>
           <tr>
-            <th className="border p-2 text-left">Record No</th>
+            <th className="border p-2 text-left">Kayıt No</th>
             {columns.map((column, idx) => (
               <th key={idx} className="border p-2 text-left">
                 {column}
               </th>
             ))}
-            <th className="border p-2">Options</th>
+            <th className="border p-2">Seçenekler</th>
           </tr>
 
-          {/* Input Row */}
           <tr>
             <td className="border p-2 text-center">#</td>
             {columns.map((column, idx) => (
@@ -139,13 +136,12 @@ export default function Dashboard() {
                   editIndex !== null ? "bg-yellow-500" : "bg-blue-500"
                 }`}
               >
-                {editIndex !== null ? "Update" : "Add"}
+                {editIndex !== null ? "Update" : "Ekle"}
               </button>
             </td>
           </tr>
         </thead>
 
-        {/* Records List */}
         <tbody>
           {records.map((record, index) => (
             <tr key={index}>

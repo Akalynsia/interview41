@@ -1,7 +1,7 @@
-"use client"; // Ensures it runs on the client side
+"use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation"; // Next.js native navigation
+import { useRouter } from "next/navigation";
 
 export default function Login() {
   const router = useRouter();
@@ -32,7 +32,7 @@ export default function Login() {
     );
     if (user) {
       localStorage.setItem("loggedInUser", JSON.stringify(user));
-      router.push("/dashboard"); // Next.js navigation
+      router.push("/dashboard");
     } else {
       setError("Invalid credentials");
     }
@@ -52,12 +52,12 @@ export default function Login() {
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <div className="bg-white p-8 rounded shadow-md w-96">
-        <h2 className="text-2xl font-bold mb-4">Login</h2>
+        <h2 className="text-2xl font-bold mb-4">Giriş</h2>
         {error && <p className="text-red-500">{error}</p>}
         <form onSubmit={handleLogin}>
           <input
             type="text"
-            placeholder="Username"
+            placeholder="Kullanıcı Adı"
             className="w-full p-2 border rounded mb-2"
             onChange={(e) =>
               setLoginData({ ...loginData, username: e.target.value })
@@ -65,7 +65,7 @@ export default function Login() {
           />
           <input
             type="password"
-            placeholder="Password"
+            placeholder="Şifreniz"
             className="w-full p-2 border rounded mb-2"
             onChange={(e) =>
               setLoginData({ ...loginData, password: e.target.value })
@@ -75,16 +75,16 @@ export default function Login() {
             className="w-full bg-blue-500 text-white p-2 rounded"
             type="submit"
           >
-            Login
+            Giriş Yap
           </button>
         </form>
         <p className="mt-4 text-center">
-          Don't have an account?{" "}
+          Hesabınız yok mu?{" "}
           <button
             className="text-blue-500"
             onClick={() => setIsSignupOpen(true)}
           >
-            Sign Up
+            Kayıt Olun
           </button>
         </p>
       </div>
@@ -92,12 +92,12 @@ export default function Login() {
       {isSignupOpen && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white p-6 rounded shadow-md w-96">
-            <h2 className="text-2xl font-bold mb-4">Sign Up</h2>
+            <h2 className="text-2xl font-bold mb-4">Kayıt Ol</h2>
             {error && <p className="text-red-500">{error}</p>}
             <form onSubmit={handleSignup}>
               <input
                 type="text"
-                placeholder="Username"
+                placeholder="Kullanıcı Adı"
                 className="w-full p-2 border rounded mb-2"
                 onChange={(e) =>
                   setSignupData({ ...signupData, username: e.target.value })
@@ -105,7 +105,7 @@ export default function Login() {
               />
               <input
                 type="password"
-                placeholder="Password"
+                placeholder="Şifreniz"
                 className="w-full p-2 border rounded mb-2"
                 onChange={(e) =>
                   setSignupData({ ...signupData, password: e.target.value })
@@ -115,14 +115,14 @@ export default function Login() {
                 className="w-full bg-green-500 text-white p-2 rounded"
                 type="submit"
               >
-                Sign Up
+                Kayıt Ol
               </button>
             </form>
             <button
               className="mt-4 text-red-500 w-full"
               onClick={() => setIsSignupOpen(false)}
             >
-              Cancel
+              Vazgeç
             </button>
           </div>
         </div>
