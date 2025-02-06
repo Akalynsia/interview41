@@ -4,7 +4,6 @@ import { useNavigate } from "react-router-dom";
 export default function Dashboard() {
   const navigate = useNavigate();
   const [loggedInUser, setLoggedInUser] = useState(null);
-  const [isMounted, setIsMounted] = useState(false);
   const [records, setRecords] = useState([]);
   const [newRecord, setNewRecord] = useState({});
   const [editIndex, setEditIndex] = useState(null);
@@ -24,27 +23,40 @@ export default function Dashboard() {
   ];
 
   useEffect(() => {
-    setIsMounted(true);
-    const storedUser = localStorage.getItem("loggedInUser");
-    if (storedUser) {
-      try {
-        const parsedUser = JSON.parse(storedUser);
-        setLoggedInUser(parsedUser?.username || "Guest");
-      } catch (error) {
-        console.error("Error parsing logged-in user:", error);
+    if (typeof window !== "undefined") {
+      const storedUser = localStorage.getItem("loggedInUser");
+      const storedRecords = localStorage.getItem("records");
+
+      if (storedUser) {
+        try {
+          const parsedUser = JSON.parse(storedUser);
+          setLoggedInUser(parsedUser?.username || "Guest");
+        } catch (error) {
+          console.error("Error parsing logged-in user:", error);
+          navigate("/");
+        }
+      } else {
         navigate("/");
       }
-    } else {
-      navigate("/");
+
+      if (storedRecords) {
+        try {
+          setRecords(JSON.parse(storedRecords));
+        } catch (error) {
+          console.error("Error parsing records:", error);
+        }
+      }
     }
   }, [navigate]);
 
-  if (!isMounted) {
-    return <div>Loading...</div>;
-  }
+  useEffect(() => {
+    if (typeof document !== "undefined") {
+      localStorage.setItem("records", JSON.stringify(records));
+    }
+  }, [records]);
 
   const handleNewRecordChange = (e, column) => {
-    setNewRecord({ ...newRecord, [column]: e.target.value });
+    setNewRecord((prev) => ({ ...prev, [column]: e.target.value }));
   };
 
   const addNewRecord = () => {
@@ -61,13 +73,20 @@ export default function Dashboard() {
   };
 
   const editRecord = (index) => {
-    setNewRecord(records[index]);
+    setNewRecord({ ...records[index] });
     setEditIndex(index);
   };
 
   const deleteRecord = (index) => {
-    const updatedRecords = records.filter((_, i) => i !== index);
+    const updatedRecords = records
+      .filter((_, i) => i !== index)
+      .map((record, i) => ({ ...record, "Record No": i + 1 }));
     setRecords(updatedRecords);
+  };
+
+  const logOut = () => {
+    localStorage.removeItem("loggedInUser");
+    navigate("/");
   };
 
   return (
@@ -77,10 +96,7 @@ export default function Dashboard() {
         <div className="flex items-center space-x-4">
           <span className="font-semibold">{loggedInUser}</span>
           <button
-            onClick={() => {
-              localStorage.removeItem("loggedInUser");
-              navigate("/");
-            }}
+            onClick={logOut}
             className="bg-red-500 text-white px-4 py-2 rounded"
           >
             Log Off
@@ -134,16 +150,16 @@ export default function Dashboard() {
                   {record[column] || "-"}
                 </td>
               ))}
-              <td className="border p-2 text-center">
+              <td className="border p-2 text-center flex justify-between">
                 <button
                   onClick={() => editRecord(index)}
-                  className="bg-green-500 text-white px-2 py-1 mr-2 rounded"
+                  className="bg-green-500 text-white px-3 py-1 mr-2 rounded w-[40px] h-[40px]"
                 >
                   ✏️
                 </button>
                 <button
                   onClick={() => deleteRecord(index)}
-                  className="bg-red-500 text-white px-2 py-1 rounded"
+                  className="bg-red-500 text-white px-3 py-1 rounded w-[40px] h-[40px]"
                 >
                   🗑️
                 </button>
