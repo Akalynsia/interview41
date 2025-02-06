@@ -1,12 +1,15 @@
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+"use client";
+
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 export default function Dashboard() {
-  const navigate = useNavigate();
+  const router = useRouter();
   const [loggedInUser, setLoggedInUser] = useState(null);
   const [records, setRecords] = useState([]);
   const [newRecord, setNewRecord] = useState({});
   const [editIndex, setEditIndex] = useState(null);
+  const [error, setError] = useState(null);
 
   const columns = [
     "Record Date",
@@ -25,41 +28,38 @@ export default function Dashboard() {
   useEffect(() => {
     if (typeof window !== "undefined") {
       const storedUser = localStorage.getItem("loggedInUser");
-      const storedRecords = localStorage.getItem("records");
-
-      if (storedUser) {
+      if (!storedUser) {
+        router.push("/");
+      } else {
         try {
           const parsedUser = JSON.parse(storedUser);
           setLoggedInUser(parsedUser?.username || "Guest");
         } catch (error) {
           console.error("Error parsing logged-in user:", error);
-          navigate("/");
-        }
-      } else {
-        navigate("/");
-      }
-
-      if (storedRecords) {
-        try {
-          setRecords(JSON.parse(storedRecords));
-        } catch (error) {
-          console.error("Error parsing records:", error);
+          router.push("/");
         }
       }
     }
-  }, [navigate]);
-
-  useEffect(() => {
-    if (typeof document !== "undefined") {
-      localStorage.setItem("records", JSON.stringify(records));
-    }
-  }, [records]);
+  }, [router]);
 
   const handleNewRecordChange = (e, column) => {
-    setNewRecord((prev) => ({ ...prev, [column]: e.target.value }));
+    setNewRecord({ ...newRecord, [column]: e.target.value });
+  };
+
+  const validateForm = () => {
+    for (let column of columns) {
+      if (!newRecord[column] || newRecord[column].trim() === "") {
+        setError(`Please fill in the "${column}" field.`);
+        return false;
+      }
+    }
+    setError(null);
+    return true;
   };
 
   const addNewRecord = () => {
+    if (!validateForm()) return;
+
     if (editIndex !== null) {
       const updatedRecords = [...records];
       updatedRecords[editIndex] = { ...newRecord, "Record No": editIndex + 1 };
@@ -73,24 +73,22 @@ export default function Dashboard() {
   };
 
   const editRecord = (index) => {
-    setNewRecord({ ...records[index] });
+    setNewRecord(records[index]);
     setEditIndex(index);
   };
 
   const deleteRecord = (index) => {
-    const updatedRecords = records
-      .filter((_, i) => i !== index)
-      .map((record, i) => ({ ...record, "Record No": i + 1 }));
-    setRecords(updatedRecords);
+    setRecords(records.filter((_, i) => i !== index));
   };
 
   const logOut = () => {
     localStorage.removeItem("loggedInUser");
-    navigate("/");
+    router.push("/");
   };
 
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
+      {/* Header Section */}
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold">FAULTY RECORD SYSTEM</h1>
         <div className="flex items-center space-x-4">
@@ -104,6 +102,10 @@ export default function Dashboard() {
         </div>
       </div>
 
+      {/* Error Message */}
+      {error && <p className="text-red-500 mb-4">{error}</p>}
+
+      {/* Records Table */}
       <table className="w-full bg-white border rounded mt-4">
         <thead>
           <tr>
@@ -115,12 +117,14 @@ export default function Dashboard() {
             ))}
             <th className="border p-2">Options</th>
           </tr>
+
+          {/* Input Row */}
           <tr>
             <td className="border p-2 text-center">#</td>
             {columns.map((column, idx) => (
               <td key={idx} className="border p-2">
                 <input
-                  type="text"
+                  type={column.includes("Date") ? "date" : "text"}
                   placeholder={`Enter ${column}`}
                   value={newRecord[column] || ""}
                   onChange={(e) => handleNewRecordChange(e, column)}
@@ -141,6 +145,7 @@ export default function Dashboard() {
           </tr>
         </thead>
 
+        {/* Records List */}
         <tbody>
           {records.map((record, index) => (
             <tr key={index}>
@@ -150,16 +155,16 @@ export default function Dashboard() {
                   {record[column] || "-"}
                 </td>
               ))}
-              <td className="border p-2 text-center flex justify-between">
+              <td className="border p-2 text-center flex">
                 <button
                   onClick={() => editRecord(index)}
-                  className="bg-green-500 text-white px-3 py-1 mr-2 rounded w-[40px] h-[40px]"
+                  className="bg-green-500 text-white px-2 py-1 rounded mr-2"
                 >
                   ✏️
                 </button>
                 <button
                   onClick={() => deleteRecord(index)}
-                  className="bg-red-500 text-white px-3 py-1 rounded w-[40px] h-[40px]"
+                  className="bg-red-500 text-white px-2 py-1 rounded"
                 >
                   🗑️
                 </button>
